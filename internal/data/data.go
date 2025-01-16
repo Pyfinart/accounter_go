@@ -46,7 +46,8 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
 
 func NewRedisClient(conf *conf.Data, logger log.Logger) (*redis.Client, func(), error) {
 	client := redis.NewClient(&redis.Options{
-		Addr: conf.Redis.Addr,
+		Addr:     conf.Redis.Addr,
+		Password: conf.Redis.Password,
 	})
 	cleanup := func() {
 		log.NewHelper(logger).Info("closing the data resources")
