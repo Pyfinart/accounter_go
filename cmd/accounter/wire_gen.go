@@ -7,11 +7,11 @@
 package main
 
 import (
-	"accounter/internal/biz"
-	"accounter/internal/conf"
-	"accounter/internal/data"
-	"accounter/internal/server"
-	"accounter/internal/service"
+	"accounter_go/internal/biz"
+	"accounter_go/internal/conf"
+	"accounter_go/internal/data"
+	"accounter_go/internal/server"
+	"accounter_go/internal/service"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 )
