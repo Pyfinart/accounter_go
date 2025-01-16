@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"accounter/internal/biz"
 	v1 "accounter_go/api/helloworld/v1"
+	"accounter_go/internal/biz"
 )
 
 // GreeterService is a greeter service.

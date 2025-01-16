@@ -3,7 +3,7 @@ package data
 import (
 	"context"
 
-	"accounter/internal/biz"
+	"accounter_go/internal/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
 )

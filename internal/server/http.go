@@ -1,9 +1,9 @@
 package server
 
 import (
-	"accounter/internal/conf"
-	"accounter/internal/service"
 	v1 "accounter_go/api/helloworld/v1"
+	"accounter_go/internal/conf"
+	"accounter_go/internal/service"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
