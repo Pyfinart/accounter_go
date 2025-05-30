@@ -11,11 +11,11 @@ import (
 type GreeterService struct {
 	v1.UnimplementedGreeterServer
 
-	uc *biz.GreeterUsecase
+	uc *biz.GreeterUseCase
 }
 
 // NewGreeterService new a greeter service.
-func NewGreeterService(uc *biz.GreeterUsecase) *GreeterService {
+func NewGreeterService(uc *biz.GreeterUseCase) *GreeterService {
 	return &GreeterService{uc: uc}
 }
 

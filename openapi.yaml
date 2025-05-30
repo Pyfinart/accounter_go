@@ -3,10 +3,28 @@
 
 openapi: 3.0.3
 info:
-    title: Greeter API
-    description: The greeting service definition.
+    title: ""
     version: 0.0.1
 paths:
+    /Accounter:
+        post:
+            tags:
+                - Accounter
+            description: Sends a greeting
+            operationId: Accounter_Add
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/accounter.v1.AddRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/accounter.v1.AddReply'
     /helloworld/{name}:
         get:
             tags:
@@ -28,6 +46,14 @@ paths:
                                 $ref: '#/components/schemas/helloworld.v1.HelloReply'
 components:
     schemas:
+        accounter.v1.AddReply:
+            type: object
+            properties: {}
+        accounter.v1.AddRequest:
+            type: object
+            properties:
+                name:
+                    type: string
         helloworld.v1.HelloReply:
             type: object
             properties:
@@ -35,4 +61,7 @@ components:
                     type: string
             description: The response message containing the greetings
 tags:
+    - name: Accounter
+      description: The greeting service definition.
     - name: Greeter
+      description: The greeting service definition.
