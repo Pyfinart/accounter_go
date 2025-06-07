@@ -11,17 +11,17 @@ import (
 type AccounterService struct {
 	v1.UnimplementedAccounterServer
 
-	uc *biz.GreeterUseCase
+	uc *biz.AccounterUseCase
 }
 
 // NewGreeterService new a greeter service.
-func NewAccounterService(uc *biz.GreeterUseCase) *AccounterService {
+func NewAccounterService(uc *biz.AccounterUseCase) *AccounterService {
 	return &AccounterService{uc: uc}
 }
 
 // SayHello implements helloworld.GreeterServer.
-func (s *GreeterService) Add(ctx context.Context, in *v1.AddRequest) (*v1.AddReply, error) {
-	_, err := s.uc.CreateGreeter(ctx, &biz.Greeter{Hello: in.Name})
+func (s *AccounterService) Add(ctx context.Context, in *v1.AddRequest) (*v1.AddReply, error) {
+	_, err := s.uc.CreateAccounter(ctx, &biz.Accounter{Hello: in.Name})
 	if err != nil {
 		return nil, err
 	}

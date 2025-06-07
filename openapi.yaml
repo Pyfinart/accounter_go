@@ -52,7 +52,18 @@ components:
         accounter.v1.AddRequest:
             type: object
             properties:
-                name:
+                type:
+                    type: integer
+                    format: enum
+                category:
+                    type: integer
+                    format: enum
+                desc:
+                    type: string
+                amount:
+                    type: number
+                    format: double
+                date:
                     type: string
         helloworld.v1.HelloReply:
             type: object
