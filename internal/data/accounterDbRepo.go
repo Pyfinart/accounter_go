@@ -1,3 +1,10 @@
+// This file contains the database-based implementation of AccounterRepo
+// It's kept for future use when switching back to database storage
+// To use this implementation:
+// 1. Uncomment NewAccounterDbRepo in data.go ProviderSet
+// 2. Comment out NewAccounterFileRepo in data.go ProviderSet
+// 3. Ensure database configuration is properly set up
+
 package data
 
 import (
@@ -10,20 +17,21 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 )
 
-type accounterRepo struct {
+type accounterDbRepo struct {
 	data *Data
 	log  *log.Helper
 }
 
-// NewAccounterRepo creates a new AccounterRepo
-func NewAccounterRepo(data *Data, logger log.Logger) biz.AccounterRepo {
-	return &accounterRepo{
+// NewAccounterDbRepo creates a new database-based AccounterRepo
+// This is kept for future use when switching back to database storage
+func NewAccounterDbRepo(data *Data, logger log.Logger) biz.AccounterRepo {
+	return &accounterDbRepo{
 		data: data,
 		log:  log.NewHelper(logger),
 	}
 }
 
-func (r *accounterRepo) Save(ctx context.Context, accounter *biz.Accounter) (*biz.Accounter, error) {
+func (r *accounterDbRepo) Save(ctx context.Context, accounter *biz.Accounter) (*biz.Accounter, error) {
 	// Convert biz.Accounter to model.AccounterTransaction
 	transaction := &model.AccounterTransaction{
 		UserID:          accounter.UserID,
@@ -54,7 +62,7 @@ func (r *accounterRepo) Save(ctx context.Context, accounter *biz.Accounter) (*bi
 	return result, nil
 }
 
-func (r *accounterRepo) Update(ctx context.Context, accounter *biz.Accounter) (*biz.Accounter, error) {
+func (r *accounterDbRepo) Update(ctx context.Context, accounter *biz.Accounter) (*biz.Accounter, error) {
 	transaction := &model.AccounterTransaction{
 		TransactionID:   accounter.TransactionID,
 		UserID:          accounter.UserID,
@@ -74,7 +82,7 @@ func (r *accounterRepo) Update(ctx context.Context, accounter *biz.Accounter) (*
 	return accounter, nil
 }
 
-func (r *accounterRepo) FindByID(ctx context.Context, id int64) (*biz.Accounter, error) {
+func (r *accounterDbRepo) FindByID(ctx context.Context, id int64) (*biz.Accounter, error) {
 	var transaction model.AccounterTransaction
 	if err := r.data.db.WithContext(ctx).First(&transaction, id).Error; err != nil {
 		r.log.WithContext(ctx).Errorf("Failed to find accounter by id %d: %v", id, err)
@@ -94,7 +102,7 @@ func (r *accounterRepo) FindByID(ctx context.Context, id int64) (*biz.Accounter,
 	return result, nil
 }
 
-func (r *accounterRepo) ListByUserID(ctx context.Context, userID int64) ([]*biz.Accounter, error) {
+func (r *accounterDbRepo) ListByUserID(ctx context.Context, userID int64) ([]*biz.Accounter, error) {
 	var transactions []model.AccounterTransaction
 	if err := r.data.db.WithContext(ctx).Where("user_id = ?", userID).Find(&transactions).Error; err != nil {
 		r.log.WithContext(ctx).Errorf("Failed to list accounters by user id %d: %v", userID, err)
@@ -122,7 +130,7 @@ func (r *accounterRepo) ListByUserID(ctx context.Context, userID int64) ([]*biz.
 	return results, nil
 }
 
-func (r *accounterRepo) ListAll(ctx context.Context) ([]*biz.Accounter, error) {
+func (r *accounterDbRepo) ListAll(ctx context.Context) ([]*biz.Accounter, error) {
 	var transactions []model.AccounterTransaction
 	if err := r.data.db.WithContext(ctx).Find(&transactions).Error; err != nil {
 		r.log.WithContext(ctx).Errorf("Failed to list all accounters: %v", err)
@@ -148,4 +156,4 @@ func (r *accounterRepo) ListAll(ctx context.Context) ([]*biz.Accounter, error) {
 	}
 
 	return results, nil
-}
+} 

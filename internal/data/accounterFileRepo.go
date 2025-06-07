@@ -30,11 +30,11 @@ type FileAccounterData struct {
 
 // FileAccounterStorage manages the file storage operations
 type FileAccounterStorage struct {
-	filePath    string
-	data        []FileAccounterData
-	mutex       sync.RWMutex
-	nextID      int64
-	log         *log.Helper
+	filePath string
+	data     []FileAccounterData
+	mutex    sync.RWMutex
+	nextID   int64
+	log      *log.Helper
 }
 
 type accounterFileRepo struct {
@@ -109,7 +109,7 @@ func (s *FileAccounterStorage) saveToFile() error {
 		return fmt.Errorf("failed to marshal data: %v", err)
 	}
 
-	if err := ioutil.WriteFile(s.filePath, content, 0644); err != nil {
+	if err := os.WriteFile(s.filePath, content, 0644); err != nil {
 		return fmt.Errorf("failed to write file %s: %v", s.filePath, err)
 	}
 
@@ -118,7 +118,7 @@ func (s *FileAccounterStorage) saveToFile() error {
 
 func (r *accounterFileRepo) Save(ctx context.Context, accounter *biz.Accounter) (*biz.Accounter, error) {
 	r.storage.mutex.Lock()
-	
+
 	// Generate new ID
 	newID := r.storage.nextID
 	r.storage.nextID++
@@ -256,4 +256,4 @@ func (r *accounterFileRepo) ListAll(ctx context.Context) ([]*biz.Accounter, erro
 	}
 
 	return results, nil
-} 
+}
