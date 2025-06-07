@@ -2,21 +2,29 @@ package biz
 
 import (
 	"context"
+	"time"
 
+	v1 "accounter_go/api/accounter/v1"
 	"github.com/go-kratos/kratos/v2/log"
 )
 
-// Greeter is a Greeter model.
+// Accounter is a Accounter model.
 type Accounter struct {
-	Hello string
+	TransactionID int64
+	UserID        int64
+	Type          v1.Type
+	Category      v1.Category
+	Desc          string
+	Amount        float64
+	Date          time.Time
 }
 
-// GreeterRepo is a Greater repo.
+// AccounterRepo is a Accounter repo.
 type AccounterRepo interface {
 	Save(context.Context, *Accounter) (*Accounter, error)
 	Update(context.Context, *Accounter) (*Accounter, error)
 	FindByID(context.Context, int64) (*Accounter, error)
-	ListByHello(context.Context, string) ([]*Accounter, error)
+	ListByUserID(context.Context, int64) ([]*Accounter, error)
 	ListAll(context.Context) ([]*Accounter, error)
 }
 
@@ -33,6 +41,6 @@ func NewAccounterUsecase(repo AccounterRepo, logger log.Logger) *AccounterUseCas
 
 // CreateAccounter creates a Accounter, and returns the new Accounter.
 func (uc *AccounterUseCase) CreateAccounter(ctx context.Context, g *Accounter) (*Accounter, error) {
-	uc.log.WithContext(ctx).Infof("CreateAccounter: %v", g.Hello)
+	uc.log.WithContext(ctx).Infof("CreateAccounter: %v", g.Desc)
 	return uc.repo.Save(ctx, g)
 }
