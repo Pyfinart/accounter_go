@@ -2,6 +2,7 @@ package server
 
 import (
 	v1 "accounter_go/api/helloworld/v1"
+	accounterv1 "accounter_go/api/accounter/v1"
 	"accounter_go/internal/conf"
 	"accounter_go/internal/service"
 
@@ -11,7 +12,7 @@ import (
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger) *grpc.Server {
+func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, accounter *service.AccounterService, logger log.Logger) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
@@ -28,5 +29,6 @@ func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, logger log.L
 	}
 	srv := grpc.NewServer(opts...)
 	v1.RegisterGreeterServer(srv, greeter)
+	accounterv1.RegisterAccounterServer(srv, accounter)
 	return srv
 }
