@@ -345,6 +345,9 @@
 
         let chart = null;
         let currentTransactions = [];
+        
+        // 动态API地址配置 - 使用当前访问的主机名+8000端口
+        const API_BASE_URL = window.location.protocol + '//' + window.location.hostname + ':8000';
 
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -386,7 +389,7 @@
              };
 
              try {
-                 const response = await fetch('http://localhost:8000/api/transactions', {
+                 const response = await fetch(`${API_BASE_URL}/api/transactions`, {
                      method: 'POST',
                      headers: {
                          'Content-Type': 'application/json',
@@ -408,24 +411,25 @@
             }
         }
 
-                 async function loadStats() {
-             try {
-                 const response = await fetch('http://localhost:8000/api/stats');
-                 const stats = await response.json();
-                
-                document.getElementById('totalIncome').textContent = `¥${stats.total_income.toFixed(2)}`;
-                document.getElementById('totalExpense').textContent = `¥${stats.total_expense.toFixed(2)}`;
-                document.getElementById('balance').textContent = `¥${stats.balance.toFixed(2)}`;
-                
-                updateChart(stats);
-            } catch (error) {
-                console.error('加载统计数据失败:', error);
-            }
-        }
+                         async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/stats`);
+                const stats = await response.json();
+               
+               document.getElementById('totalIncome').textContent = `¥${(stats.totalIncome || 0).toFixed(2)}`;
+               document.getElementById('totalExpense').textContent = `¥${(stats.totalExpense || 0).toFixed(2)}`;
+               document.getElementById('balance').textContent = `¥${(stats.balance || 0).toFixed(2)}`;
+               
+               updateChart(stats);
+           } catch (error) {
+               console.error('加载统计数据失败:', error);
+               showMessage('❌ 加载统计数据失败', 'error');
+           }
+       }
 
                  async function loadTransactions() {
              try {
-                 const response = await fetch('http://localhost:8000/api/transactions');
+                 const response = await fetch(`${API_BASE_URL}/api/transactions`);
                  const data = await response.json();
                 currentTransactions = data.transactions || [];
                 displayTransactions(currentTransactions);
@@ -464,7 +468,7 @@
             if (!confirm('确定要删除这条记录吗？')) return;
             
                          try {
-                 const response = await fetch(`http://localhost:8000/api/transactions/${id}`, {
+                 const response = await fetch(`${API_BASE_URL}/api/transactions/${id}`, {
                      method: 'DELETE'
                  });
                 
@@ -514,8 +518,8 @@
                 chart.destroy();
             }
             
-            const expenseData = stats.expense_by_category || [];
-            const labels = expenseData.map(item => item.category_name);
+            const expenseData = stats.expenseByCategory || [];
+            const labels = expenseData.map(item => item.categoryName);
             const data = expenseData.map(item => item.amount);
             
             chart = new Chart(ctx, {
