@@ -31,7 +31,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	greeterRepo := data.NewGreeterRepo(dataData, logger)
 	greeterUseCase := biz.NewGreeterUseCase(greeterRepo, logger)
 	greeterService := service.NewGreeterService(greeterUseCase)
-	accounterRepo := data.NewAccounterFileRepo(logger)
+	accounterRepo := data.NewAccounterFileRepo(confData, logger)
 	accounterUseCase := biz.NewAccounterUsecase(accounterRepo, logger)
 	accounterService := service.NewAccounterService(accounterUseCase)
 	grpcServer := server.NewGRPCServer(confServer, greeterService, accounterService, logger)

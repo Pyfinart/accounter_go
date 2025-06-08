@@ -12,6 +12,7 @@ import (
 
 	v1 "accounter_go/api/accounter/v1"
 	"accounter_go/internal/biz"
+	"accounter_go/internal/conf"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -43,15 +44,27 @@ type accounterFileRepo struct {
 }
 
 // NewAccounterFileRepo creates a new file-based AccounterRepo
-func NewAccounterFileRepo(logger log.Logger) biz.AccounterRepo {
+func NewAccounterFileRepo(c *conf.Data, logger log.Logger) biz.AccounterRepo {
+	// Get file storage config or use defaults
+	dataDir := "./data"
+	fileName := "accounters.json"
+	
+	if c.FileStorage != nil {
+		if c.FileStorage.DataDir != "" {
+			dataDir = c.FileStorage.DataDir
+		}
+		if c.FileStorage.AccounterFile != "" {
+			fileName = c.FileStorage.AccounterFile
+		}
+	}
+
 	// Create data directory if it doesn't exist
-	dataDir := "data"
 	if err := os.MkdirAll(dataDir, 0755); err != nil {
 		log.NewHelper(logger).Errorf("Failed to create data directory: %v", err)
 	}
 
 	storage := &FileAccounterStorage{
-		filePath: filepath.Join(dataDir, "accounters.json"),
+		filePath: filepath.Join(dataDir, fileName),
 		data:     make([]FileAccounterData, 0),
 		nextID:   1,
 		log:      log.NewHelper(logger),
@@ -59,6 +72,8 @@ func NewAccounterFileRepo(logger log.Logger) biz.AccounterRepo {
 
 	// Load existing data
 	storage.loadFromFile()
+
+	log.NewHelper(logger).Infof("Initialized file storage at: %s", storage.filePath)
 
 	return &accounterFileRepo{
 		storage: storage,

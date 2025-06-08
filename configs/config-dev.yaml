@@ -14,7 +14,6 @@ data:
     read_timeout: 0.2s
     write_timeout: 0.2s
     password: "123456"
-#    username: "root"
   file_storage:
-    data_dir: "./storage/prod"
-    accounter_file: "accounters.json"
+    data_dir: "./storage/dev"
+    accounter_file: "dev_accounters.json" 

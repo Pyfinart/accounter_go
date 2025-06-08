@@ -37,6 +37,11 @@ message Data {
     google.protobuf.Duration read_timeout = 5;
     google.protobuf.Duration write_timeout = 6;
   }
+  message FileStorage {
+    string data_dir = 1;
+    string accounter_file = 2;
+  }
   Database database = 1;
   Redis redis = 2;
+  FileStorage file_storage = 3;
 }
