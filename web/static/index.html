@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人记账系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .transaction-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        .transaction-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-desc {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .transaction-meta {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .transaction-amount {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .amount-income {
+            color: #28a745;
+        }
+
+        .amount-expense {
+            color: #dc3545;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        .error {
+            background: #ffe6e6;
+            color: #d63031;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        .success {
+            background: #e6f7e6;
+            color: #00b894;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 个人记账系统</h1>
+            <p>让理财变得简单易懂</p>
+        </div>
+
+        <!-- 添加记录表单 -->
+        <div class="card">
+            <h2>📝 添加交易记录</h2>
+            <div id="message"></div>
+            <form id="transactionForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="type">交易类型</label>
+                        <select id="type" required>
+                            <option value="">请选择</option>
+                            <option value="1">收入</option>
+                            <option value="2">支出</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">分类</label>
+                        <select id="category" required>
+                            <option value="">请选择</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">金额</label>
+                        <input type="number" id="amount" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">日期</label>
+                        <input type="date" id="date" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="desc">描述</label>
+                    <input type="text" id="desc" placeholder="请输入交易描述" required>
+                </div>
+                <button type="submit" class="btn">💾 保存记录</button>
+            </form>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="card">
+            <h2>📊 财务统计</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalIncome">¥0</div>
+                    <div class="stat-label">总收入</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalExpense">¥0</div>
+                    <div class="stat-label">总支出</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="balance">¥0</div>
+                    <div class="stat-label">余额</div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 交易记录列表 -->
+        <div class="card">
+            <h2>📋 交易记录</h2>
+            <div class="filters">
+                <div class="form-group">
+                    <label for="filterType">类型筛选</label>
+                    <select id="filterType">
+                        <option value="">全部</option>
+                        <option value="1">收入</option>
+                        <option value="2">支出</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filterCategory">分类筛选</label>
+                    <select id="filterCategory">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="startDate">开始日期</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="form-group">
+                    <label for="endDate">结束日期</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="form-group">
+                    <label>&nbsp;</label>
+                    <button type="button" class="btn" onclick="filterTransactions()">🔍 筛选</button>
+                </div>
+            </div>
+            <div id="transactionList" class="transaction-list">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 分类映射
+        const categories = {
+            1: '游戏', 2: '餐饮', 3: '旅行', 4: '教育', 5: '健康',
+            6: '购物', 7: '其他', 8: '交通', 9: '娱乐', 10: '投资',
+            11: '借款', 12: '工资', 13: '其他收入', 14: '应用', 15: '住房',
+            16: '水电费', 17: '礼物', 18: '零食'
+        };
+
+        let chart = null;
+        let currentTransactions = [];
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置默认日期为今天
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            
+            // 初始化分类选项
+            initializeCategories();
+            
+            // 加载数据
+            loadStats();
+            loadTransactions();
+            
+            // 绑定表单提交事件
+            document.getElementById('transactionForm').addEventListener('submit', handleSubmit);
+        });
+
+        function initializeCategories() {
+            const categorySelect = document.getElementById('category');
+            const filterCategorySelect = document.getElementById('filterCategory');
+            
+            Object.entries(categories).forEach(([value, text]) => {
+                const option1 = new Option(text, value);
+                const option2 = new Option(text, value);
+                categorySelect.appendChild(option1);
+                filterCategorySelect.appendChild(option2);
+            });
+        }
+
+                 async function handleSubmit(e) {
+             e.preventDefault();
+             
+             const formData = {
+                 type: parseInt(document.getElementById('type').value),
+                 category: parseInt(document.getElementById('category').value),
+                 amount: parseFloat(document.getElementById('amount').value),
+                 date: document.getElementById('date').value,
+                 desc: document.getElementById('desc').value
+             };
+
+             try {
+                 const response = await fetch('http://localhost:8000/api/transactions', {
+                     method: 'POST',
+                     headers: {
+                         'Content-Type': 'application/json',
+                     },
+                     body: JSON.stringify(formData)
+                 });
+
+                if (response.ok) {
+                    showMessage('✅ 记录保存成功！', 'success');
+                    document.getElementById('transactionForm').reset();
+                    document.getElementById('date').value = new Date().toISOString().split('T')[0];
+                    loadStats();
+                    loadTransactions();
+                } else {
+                    throw new Error('保存失败');
+                }
+            } catch (error) {
+                showMessage('❌ 保存失败，请重试', 'error');
+            }
+        }
+
+                 async function loadStats() {
+             try {
+                 const response = await fetch('http://localhost:8000/api/stats');
+                 const stats = await response.json();
+                
+                document.getElementById('totalIncome').textContent = `¥${stats.total_income.toFixed(2)}`;
+                document.getElementById('totalExpense').textContent = `¥${stats.total_expense.toFixed(2)}`;
+                document.getElementById('balance').textContent = `¥${stats.balance.toFixed(2)}`;
+                
+                updateChart(stats);
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+            }
+        }
+
+                 async function loadTransactions() {
+             try {
+                 const response = await fetch('http://localhost:8000/api/transactions');
+                 const data = await response.json();
+                currentTransactions = data.transactions || [];
+                displayTransactions(currentTransactions);
+            } catch (error) {
+                document.getElementById('transactionList').innerHTML = '<div class="error">加载交易记录失败</div>';
+            }
+        }
+
+        function displayTransactions(transactions) {
+            const container = document.getElementById('transactionList');
+            
+            if (!transactions || transactions.length === 0) {
+                container.innerHTML = '<div class="loading">暂无交易记录</div>';
+                return;
+            }
+
+            const html = transactions.map(t => `
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <div class="transaction-desc">${t.desc}</div>
+                        <div class="transaction-meta">
+                            ${categories[t.category]} • ${t.date}
+                        </div>
+                    </div>
+                    <div class="transaction-amount ${t.type === 1 ? 'amount-income' : 'amount-expense'}">
+                        ${t.type === 1 ? '+' : '-'}¥${t.amount.toFixed(2)}
+                    </div>
+                    <button class="delete-btn" onclick="deleteTransaction(${t.id})">删除</button>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        async function deleteTransaction(id) {
+            if (!confirm('确定要删除这条记录吗？')) return;
+            
+                         try {
+                 const response = await fetch(`http://localhost:8000/api/transactions/${id}`, {
+                     method: 'DELETE'
+                 });
+                
+                if (response.ok) {
+                    showMessage('✅ 删除成功！', 'success');
+                    loadStats();
+                    loadTransactions();
+                } else {
+                    throw new Error('删除失败');
+                }
+            } catch (error) {
+                showMessage('❌ 删除失败，请重试', 'error');
+            }
+        }
+
+        function filterTransactions() {
+            const type = document.getElementById('filterType').value;
+            const category = document.getElementById('filterCategory').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            let filtered = currentTransactions;
+            
+            if (type) {
+                filtered = filtered.filter(t => t.type === parseInt(type));
+            }
+            
+            if (category) {
+                filtered = filtered.filter(t => t.category === parseInt(category));
+            }
+            
+            if (startDate) {
+                filtered = filtered.filter(t => t.date >= startDate);
+            }
+            
+            if (endDate) {
+                filtered = filtered.filter(t => t.date <= endDate);
+            }
+            
+            displayTransactions(filtered);
+        }
+
+        function updateChart(stats) {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            const expenseData = stats.expense_by_category || [];
+            const labels = expenseData.map(item => item.category_name);
+            const data = expenseData.map(item => item.amount);
+            
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                            '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
+                            '#4BC0C0', '#FF6384', '#36A2EB', '#FFCE56'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        title: {
+                            display: true,
+                            text: '支出分类分布'
+                        }
+                    }
+                }
+            });
+        }
+
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="${type}">${message}</div>`;
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 3000);
+        }
+    </script>
+</body>
+</html> 
