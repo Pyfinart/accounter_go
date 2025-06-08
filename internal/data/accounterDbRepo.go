@@ -9,6 +9,7 @@ package data
 
 import (
 	"context"
+	"fmt"
 
 	v1 "accounter_go/api/accounter/v1"
 	"accounter_go/internal/biz"
@@ -156,4 +157,22 @@ func (r *accounterDbRepo) ListAll(ctx context.Context) ([]*biz.Accounter, error)
 	}
 
 	return results, nil
-} 
+}
+
+// ListWithFilters - Database implementation (placeholder for future use)
+func (r *accounterDbRepo) ListWithFilters(ctx context.Context, filter *biz.ListFilter) ([]*biz.Accounter, int32, error) {
+	// TODO: Implement database version with proper SQL queries
+	return nil, 0, fmt.Errorf("database implementation not yet available")
+}
+
+// Delete - Database implementation (placeholder for future use)
+func (r *accounterDbRepo) Delete(ctx context.Context, id int64) error {
+	// TODO: Implement database version
+	return fmt.Errorf("database implementation not yet available")
+}
+
+// GetStats - Database implementation (placeholder for future use)
+func (r *accounterDbRepo) GetStats(ctx context.Context, filter *biz.StatsFilter) (*biz.Stats, error) {
+	// TODO: Implement database version with proper SQL queries
+	return nil, fmt.Errorf("database implementation not yet available")
+}
