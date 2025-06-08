@@ -272,3 +272,178 @@ func (r *accounterFileRepo) ListAll(ctx context.Context) ([]*biz.Accounter, erro
 
 	return results, nil
 }
+
+func (r *accounterFileRepo) ListWithFilters(ctx context.Context, filter *biz.ListFilter) ([]*biz.Accounter, int32, error) {
+	r.storage.mutex.RLock()
+	defer r.storage.mutex.RUnlock()
+
+	var filtered []*biz.Accounter
+	for _, item := range r.storage.data {
+		// Apply filters
+		if filter.UserID != 0 && item.UserID != filter.UserID {
+			continue
+		}
+		if filter.Type != nil && int32(*filter.Type) != item.Type {
+			continue
+		}
+		if filter.Category != nil && int32(*filter.Category) != item.Category {
+			continue
+		}
+		if filter.StartDate != nil && item.Date.Before(*filter.StartDate) {
+			continue
+		}
+		if filter.EndDate != nil && item.Date.After(*filter.EndDate) {
+			continue
+		}
+
+		result := &biz.Accounter{
+			TransactionID: item.TransactionID,
+			UserID:        item.UserID,
+			Type:          v1.Type(item.Type),
+			Category:      v1.Category(item.Category),
+			Desc:          item.Desc,
+			Amount:        item.Amount,
+			Date:          item.Date,
+		}
+		filtered = append(filtered, result)
+	}
+
+	total := int32(len(filtered))
+
+	// Apply pagination
+	start := (filter.Page - 1) * filter.PageSize
+	end := start + filter.PageSize
+
+	if start > total {
+		return []*biz.Accounter{}, total, nil
+	}
+	if end > total {
+		end = total
+	}
+
+	return filtered[start:end], total, nil
+}
+
+func (r *accounterFileRepo) Delete(ctx context.Context, id int64) error {
+	r.storage.mutex.Lock()
+	defer r.storage.mutex.Unlock()
+
+	// Find and remove the record
+	for i, item := range r.storage.data {
+		if item.TransactionID == id {
+			r.storage.data = append(r.storage.data[:i], r.storage.data[i+1:]...)
+			
+			// Save to file
+			if err := r.storage.saveToFile(); err != nil {
+				r.log.WithContext(ctx).Errorf("Failed to save to file after delete: %v", err)
+				return err
+			}
+
+			r.log.WithContext(ctx).Infof("Deleted accounter with ID: %d", id)
+			return nil
+		}
+	}
+
+	return fmt.Errorf("accounter with ID %d not found", id)
+}
+
+func (r *accounterFileRepo) GetStats(ctx context.Context, filter *biz.StatsFilter) (*biz.Stats, error) {
+	r.storage.mutex.RLock()
+	defer r.storage.mutex.RUnlock()
+
+	var (
+		totalIncome         float64
+		totalExpense        float64
+		incomeByCategory    = make(map[v1.Category]*biz.CategoryStat)
+		expenseByCategory   = make(map[v1.Category]*biz.CategoryStat)
+	)
+
+	// Category names mapping
+	categoryNames := map[v1.Category]string{
+		v1.Category_Default:     "默认",
+		v1.Category_Game:        "游戏",
+		v1.Category_Food:        "餐饮",
+		v1.Category_Travel:      "旅行",
+		v1.Category_Education:   "教育",
+		v1.Category_Health:      "健康",
+		v1.Category_Shopping:    "购物",
+		v1.Category_Other:       "其他",
+		v1.Category_Transport:   "交通",
+		v1.Category_Entertainment: "娱乐",
+		v1.Category_Investment:  "投资",
+		v1.Category_Loan:        "借款",
+		v1.Category_Salary:      "工资",
+		v1.Category_OtherIncome: "其他收入",
+		v1.Category_App:         "应用",
+		v1.Category_House:       "住房",
+		v1.Category_Utility:     "水电费",
+		v1.Category_Gift:        "礼物",
+		v1.Category_Snacks:      "零食",
+	}
+
+	for _, item := range r.storage.data {
+		// Apply filters
+		if filter.UserID != 0 && item.UserID != filter.UserID {
+			continue
+		}
+		if filter.StartDate != nil && item.Date.Before(*filter.StartDate) {
+			continue
+		}
+		if filter.EndDate != nil && item.Date.After(*filter.EndDate) {
+			continue
+		}
+
+		category := v1.Category(item.Category)
+		categoryName := categoryNames[category]
+		if categoryName == "" {
+			categoryName = "未知"
+		}
+
+		if item.Type == int32(v1.Type_Income) {
+			totalIncome += item.Amount
+			if stat, exists := incomeByCategory[category]; exists {
+				stat.Amount += item.Amount
+				stat.Count++
+			} else {
+				incomeByCategory[category] = &biz.CategoryStat{
+					Category:     category,
+					CategoryName: categoryName,
+					Amount:       item.Amount,
+					Count:        1,
+				}
+			}
+		} else if item.Type == int32(v1.Type_Expense) {
+			totalExpense += item.Amount
+			if stat, exists := expenseByCategory[category]; exists {
+				stat.Amount += item.Amount
+				stat.Count++
+			} else {
+				expenseByCategory[category] = &biz.CategoryStat{
+					Category:     category,
+					CategoryName: categoryName,
+					Amount:       item.Amount,
+					Count:        1,
+				}
+			}
+		}
+	}
+
+	// Convert maps to slices
+	var incomeStats []*biz.CategoryStat
+	for _, stat := range incomeByCategory {
+		incomeStats = append(incomeStats, stat)
+	}
+
+	var expenseStats []*biz.CategoryStat
+	for _, stat := range expenseByCategory {
+		expenseStats = append(expenseStats, stat)
+	}
+
+	return &biz.Stats{
+		TotalIncome:       totalIncome,
+		TotalExpense:      totalExpense,
+		Balance:           totalIncome - totalExpense,
+		IncomeByCategory:  incomeStats,
+		ExpenseByCategory: expenseStats,
+	}, nil
+}
