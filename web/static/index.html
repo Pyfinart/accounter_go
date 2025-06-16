@@ -451,7 +451,7 @@
                     <div class="transaction-info">
                         <div class="transaction-desc">${t.desc}</div>
                         <div class="transaction-meta">
-                            ${categories[t.category]} • ${t.date}
+                            ${categories[parseInt(t.category)] || t.category} • ${t.date}
                         </div>
                     </div>
                     <div class="transaction-amount ${t.type === 1 ? 'amount-income' : 'amount-expense'}">
