@@ -29,7 +29,7 @@ func main() {
 	fs := http.FileServer(http.Dir(staticDir))
 	http.Handle("/", fs)
 
-	port := ":3000"
+	port := ":30000"
 	fmt.Printf("🌐 Web界面服务器启动在端口%s\n", port)
 	fmt.Printf("📍 请访问: http://localhost%s\n", port)
 	fmt.Printf("🔧 API服务请确保在8000端口运行\n")

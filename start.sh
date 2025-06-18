@@ -17,14 +17,14 @@ API_PID=$!
 sleep 3
 
 # 启动Web界面服务器（后台运行）
-echo "🌐 启动Web界面服务器 (端口3000)..."
+echo "🌐 启动Web界面服务器 (端口30000)..."
 cd web && go run server.go &
 WEB_PID=$!
 
 echo ""
 echo "✅ 系统启动完成！"
 echo ""
-echo "📊 Web界面: http://localhost:3000"
+echo "📊 Web界面: http://localhost:30000"
 echo "🔌 API服务: http://localhost:8000"
 echo ""
 echo "按 Ctrl+C 停止所有服务"
