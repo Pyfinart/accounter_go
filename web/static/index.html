@@ -484,31 +484,34 @@
             }
         }
 
-        function filterTransactions() {
+        async function filterTransactions() {
             const type = document.getElementById('filterType').value;
             const category = document.getElementById('filterCategory').value;
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             
-            let filtered = currentTransactions;
+            // 构建查询参数 - 使用protobuf的原始字段名（下划线格式）
+            const params = new URLSearchParams();
+            if (type) params.append('type', type);
+            if (category) params.append('category', category);
+            if (startDate) params.append('start_date', startDate);
+            if (endDate) params.append('end_date', endDate);
+            params.append('page', '1');
+            params.append('page_size', '100'); // 设置较大的页面大小以获取所有匹配记录
             
-            if (type) {
-                filtered = filtered.filter(t => t.type === parseInt(type));
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/transactions?${params.toString()}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    currentTransactions = data.transactions || [];
+                    displayTransactions(currentTransactions);
+                } else {
+                    throw new Error('筛选失败');
+                }
+            } catch (error) {
+                console.error('筛选交易记录失败:', error);
+                showMessage('❌ 筛选失败，请重试', 'error');
             }
-            
-            if (category) {
-                filtered = filtered.filter(t => t.category === parseInt(category));
-            }
-            
-            if (startDate) {
-                filtered = filtered.filter(t => t.date >= startDate);
-            }
-            
-            if (endDate) {
-                filtered = filtered.filter(t => t.date <= endDate);
-            }
-            
-            displayTransactions(filtered);
         }
 
         function updateChart(stats) {
