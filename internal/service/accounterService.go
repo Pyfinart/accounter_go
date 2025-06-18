@@ -52,6 +52,7 @@ func (s *AccounterService) Add(ctx context.Context, in *v1.AddRequest) (*v1.AddR
 
 // List implements accounter.AccounterServer.
 func (s *AccounterService) List(ctx context.Context, in *v1.ListRequest) (*v1.ListReply, error) {
+	s.uc.Log.Errorf("ListAccounters with filters, params: %+v", in)
 	filter := &biz.ListFilter{
 		UserID:   1, // TODO: Get from context/auth
 		Page:     in.Page,
