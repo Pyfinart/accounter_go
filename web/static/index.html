@@ -346,8 +346,8 @@
         let chart = null;
         let currentTransactions = [];
         
-        // 动态API地址配置 - 使用当前访问的主机名+8000端口
-        const API_BASE_URL = window.location.protocol + '//' + window.location.hostname + ':8000';
+        // 动态API地址配置 - 使用当前访问的主机名（通过web服务器代理到后端）
+        const API_BASE_URL = window.location.protocol + '//' + window.location.host;
 
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {

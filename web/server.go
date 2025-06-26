@@ -4,14 +4,26 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 )
 
 func main() {
 	// 设置静态文件目录
 	staticDir := "static"
 
+	// 创建反向代理到后端API服务器
+	backendURL, err := url.Parse("http://localhost:8000")
+	if err != nil {
+		log.Fatal("无法解析后端URL:", err)
+	}
+
+	// 创建反向代理
+	proxy := httputil.NewSingleHostReverseProxy(backendURL)
+
 	// 先注册API路由（更具体的路径）
 	http.HandleFunc("/api/", func(w http.ResponseWriter, r *http.Request) {
+		// 设置CORS头
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
@@ -21,8 +33,8 @@ func main() {
 			return
 		}
 
-		// 代理到后端API服务器
-		http.Error(w, "API服务请求，请确保后端服务在8000端口运行", http.StatusBadGateway)
+		// 使用反向代理转发请求到后端
+		proxy.ServeHTTP(w, r)
 	})
 
 	// 然后注册静态文件服务器（通用路径）
