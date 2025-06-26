@@ -429,7 +429,8 @@
 
                  async function loadTransactions() {
              try {
-                 const response = await fetch(`${API_BASE_URL}/api/transactions`);
+                 // 设置较大的页面大小以获取所有记录
+                 const response = await fetch(`${API_BASE_URL}/api/transactions?page=1&page_size=1000`);
                  const data = await response.json();
                 currentTransactions = data.transactions || [];
                 displayTransactions(currentTransactions);
