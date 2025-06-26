@@ -53,6 +53,10 @@ func (s *AccounterService) Add(ctx context.Context, in *v1.AddRequest) (*v1.AddR
 // List implements accounter.AccounterServer.
 func (s *AccounterService) List(ctx context.Context, in *v1.ListRequest) (*v1.ListReply, error) {
 	s.uc.Log.Errorf("ListAccounters with filters, params: %+v", in)
+
+	const defaultPageSize = 20
+	const defaultPage = 1
+
 	filter := &biz.ListFilter{
 		UserID:   1, // TODO: Get from context/auth
 		Page:     in.Page,
@@ -80,10 +84,10 @@ func (s *AccounterService) List(ctx context.Context, in *v1.ListRequest) (*v1.Li
 
 	// Set default pagination
 	if filter.Page <= 0 {
-		filter.Page = 1
+		filter.Page = defaultPage
 	}
 	if filter.PageSize <= 0 {
-		filter.PageSize = 20
+		filter.PageSize = defaultPageSize
 	}
 
 	accounters, total, err := s.uc.ListAccounters(ctx, filter)
