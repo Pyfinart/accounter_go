@@ -447,3 +447,94 @@ func (r *accounterFileRepo) GetStats(ctx context.Context, filter *biz.StatsFilte
 		ExpenseByCategory: expenseStats,
 	}, nil
 }
+
+func (r *accounterFileRepo) GetPeriodStats(ctx context.Context, filter *biz.PeriodStatsFilter) (*biz.PeriodStats, error) {
+	r.storage.mutex.RLock()
+	defer r.storage.mutex.RUnlock()
+
+	// 按时间段分组统计数据
+	periodStats := make(map[string]*biz.PeriodData)
+	var totalIncome, totalExpense float64
+
+	for _, item := range r.storage.data {
+		// Apply user filter
+		if filter.UserID != 0 && item.UserID != filter.UserID {
+			continue
+		}
+
+		// 根据时间段类型生成时间段名称
+		var periodName string
+		switch filter.PeriodType {
+		case v1.PeriodType_MONTHLY:
+			// 按月统计
+			if filter.Year != 0 && item.Date.Year() != int(filter.Year) {
+				continue
+			}
+			if filter.Month != 0 && item.Date.Month() != time.Month(filter.Month) {
+				continue
+			}
+			periodName = fmt.Sprintf("%d年%d月", item.Date.Year(), item.Date.Month())
+		case v1.PeriodType_YEARLY:
+			// 按年统计
+			if filter.Year != 0 && item.Date.Year() != int(filter.Year) {
+				continue
+			}
+			periodName = fmt.Sprintf("%d年", item.Date.Year())
+		case v1.PeriodType_WEEKLY:
+			// 按周统计
+			if filter.Year != 0 && item.Date.Year() != int(filter.Year) {
+				continue
+			}
+			if filter.Week != 0 {
+				// 计算指定年份的第N周
+				yearStart := time.Date(int(filter.Year), 1, 1, 0, 0, 0, 0, time.UTC)
+				weekStart := yearStart.AddDate(0, 0, (int(filter.Week)-1)*7)
+				weekEnd := weekStart.AddDate(0, 0, 6)
+				
+				if item.Date.Before(weekStart) || item.Date.After(weekEnd) {
+					continue
+				}
+			}
+			year, week := item.Date.ISOWeek()
+			periodName = fmt.Sprintf("%d年第%d周", year, week)
+		default:
+			continue
+		}
+
+		// 获取或创建时间段统计
+		if stat, exists := periodStats[periodName]; exists {
+			stat.TransactionCount++
+		} else {
+			periodStats[periodName] = &biz.PeriodData{
+				PeriodName:       periodName,
+				Income:           0,
+				Expense:          0,
+				Balance:          0,
+				TransactionCount: 0,
+			}
+		}
+
+		// 累计统计数据
+		if item.Type == int32(v1.Type_Income) {
+			periodStats[periodName].Income += item.Amount
+			totalIncome += item.Amount
+		} else if item.Type == int32(v1.Type_Expense) {
+			periodStats[periodName].Expense += item.Amount
+			totalExpense += item.Amount
+		}
+	}
+
+	// 计算每个时间段的余额并转换为切片
+	var periods []*biz.PeriodData
+	for _, stat := range periodStats {
+		stat.Balance = stat.Income - stat.Expense
+		periods = append(periods, stat)
+	}
+
+	return &biz.PeriodStats{
+		Periods:      periods,
+		TotalIncome:  totalIncome,
+		TotalExpense: totalExpense,
+		TotalBalance: totalIncome - totalExpense,
+	}, nil
+}

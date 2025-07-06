@@ -29,6 +29,7 @@ type AccounterRepo interface {
 	ListWithFilters(context.Context, *ListFilter) ([]*Accounter, int32, error)
 	Delete(context.Context, int64) error
 	GetStats(context.Context, *StatsFilter) (*Stats, error)
+	GetPeriodStats(context.Context, *PeriodStatsFilter) (*PeriodStats, error)
 }
 
 // AccounterUseCase is a Accounter usecase.
@@ -60,12 +61,30 @@ type StatsFilter struct {
 	EndDate   *time.Time
 }
 
+// PeriodStatsFilter represents filters for getting period statistics
+type PeriodStatsFilter struct {
+	UserID     int64
+	PeriodType v1.PeriodType
+	Year       int32
+	Month      int32
+	Week       int32
+}
+
 // CategoryStat represents statistics for a category
 type CategoryStat struct {
 	Category     v1.Category
 	CategoryName string
 	Amount       float64
 	Count        int32
+}
+
+// PeriodData represents statistics for a specific period
+type PeriodData struct {
+	PeriodName       string
+	Income           float64
+	Expense          float64
+	Balance          float64
+	TransactionCount int32
 }
 
 // Stats represents financial statistics
@@ -75,6 +94,14 @@ type Stats struct {
 	Balance           float64
 	IncomeByCategory  []*CategoryStat
 	ExpenseByCategory []*CategoryStat
+}
+
+// PeriodStats represents period-based statistics
+type PeriodStats struct {
+	Periods       []*PeriodData
+	TotalIncome   float64
+	TotalExpense  float64
+	TotalBalance  float64
 }
 
 // CreateAccounter creates a Accounter, and returns the new Accounter.
@@ -99,4 +126,10 @@ func (uc *AccounterUseCase) DeleteAccounter(ctx context.Context, id int64) error
 func (uc *AccounterUseCase) GetStats(ctx context.Context, filter *StatsFilter) (*Stats, error) {
 	uc.Log.WithContext(ctx).Infof("GetStats")
 	return uc.repo.GetStats(ctx, filter)
+}
+
+// GetPeriodStats gets period-based statistics
+func (uc *AccounterUseCase) GetPeriodStats(ctx context.Context, filter *PeriodStatsFilter) (*PeriodStats, error) {
+	uc.Log.WithContext(ctx).Infof("GetPeriodStats: %v", filter.PeriodType)
+	return uc.repo.GetPeriodStats(ctx, filter)
 }

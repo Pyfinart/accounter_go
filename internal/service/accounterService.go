@@ -181,3 +181,38 @@ func (s *AccounterService) Delete(ctx context.Context, in *v1.DeleteRequest) (*v
 		Message: "Transaction deleted successfully",
 	}, nil
 }
+
+// PeriodStats implements accounter.AccounterServer.
+func (s *AccounterService) PeriodStats(ctx context.Context, in *v1.PeriodStatsRequest) (*v1.PeriodStatsReply, error) {
+	filter := &biz.PeriodStatsFilter{
+		UserID:     1, // TODO: Get from context/auth
+		PeriodType: in.PeriodType,
+		Year:       in.Year,
+		Month:      in.Month,
+		Week:       in.Week,
+	}
+
+	stats, err := s.uc.GetPeriodStats(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to response format
+	periods := make([]*v1.PeriodData, len(stats.Periods))
+	for i, period := range stats.Periods {
+		periods[i] = &v1.PeriodData{
+			PeriodName:       period.PeriodName,
+			Income:           period.Income,
+			Expense:          period.Expense,
+			Balance:          period.Balance,
+			TransactionCount: period.TransactionCount,
+		}
+	}
+
+	return &v1.PeriodStatsReply{
+		Periods:      periods,
+		TotalIncome:  stats.TotalIncome,
+		TotalExpense: stats.TotalExpense,
+		TotalBalance: stats.TotalBalance,
+	}, nil
+}

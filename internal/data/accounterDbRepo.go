@@ -176,3 +176,9 @@ func (r *accounterDbRepo) GetStats(ctx context.Context, filter *biz.StatsFilter)
 	// TODO: Implement database version with proper SQL queries
 	return nil, fmt.Errorf("database implementation not yet available")
 }
+
+// GetPeriodStats - Database implementation (placeholder for future use)
+func (r *accounterDbRepo) GetPeriodStats(ctx context.Context, filter *biz.PeriodStatsFilter) (*biz.PeriodStats, error) {
+	// TODO: Implement database version with proper SQL queries
+	return nil, fmt.Errorf("database implementation not yet available")
+}
