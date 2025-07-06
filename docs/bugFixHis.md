@@ -108,3 +108,79 @@ const API_BASE_URL = window.location.protocol + '//' + window.location.host;
 - 确保后端API服务器在8000端口正常运行
 - ngrok只暴露30000端口即可，不需要暴露8000端口
 - 如果修改了端口配置，需要同步更新相关文件
+
+## 问题：Mac合盖后ngrok隧道断开，公网无法访问本地服务
+
+### 现象
+- 使用 `ngrok http 30000` 暴露本地web服务到互联网
+- Mac合上盖子后，ngrok隧道变为offline，公网无法访问
+- 打开盖子后，ngrok恢复正常
+
+### 原因
+Mac合盖后会进入睡眠，导致ngrok进程挂起或网络断开，隧道失效。
+
+---
+
+### 解决方案：使用launchd服务管理ngrok
+
+### 具体操作步骤
+
+1. **停止当前ngrok进程**
+   ```bash
+   pkill ngrok
+   ```
+
+2. **创建launchd配置文件**
+   在 `~/Library/LaunchAgents/` 目录下新建 `com.ngrok.tunnel.plist` 文件，内容如下：
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+   <plist version="1.0">
+   <dict>
+       <key>Label</key>
+       <string>com.ngrok.tunnel</string>
+       <key>ProgramArguments</key>
+       <array>
+           <string>/opt/homebrew/bin/ngrok</string>
+           <string>http</string>
+           <string>30000</string>
+       </array>
+       <key>RunAtLoad</key>
+       <true/>
+       <key>KeepAlive</key>
+       <true/>
+       <key>StandardOutPath</key>
+       <string>/tmp/ngrok.log</string>
+       <key>StandardErrorPath</key>
+       <string>/tmp/ngrok.error.log</string>
+       <key>WorkingDirectory</key>
+       <string>/Users/yhj19/developer/MY_Go/accounter_go</string>
+   </dict>
+   </plist>
+   ```
+   > 注意：ngrok路径和WorkingDirectory需根据实际情况修改。
+
+3. **加载launchd服务**
+   ```bash
+   launchctl bootstrap gui/$UID ~/Library/LaunchAgents/com.ngrok.tunnel.plist
+   ```
+
+4. **验证服务是否运行**
+   ```bash
+   ps aux | grep ngrok
+   tail -f /tmp/ngrok.log
+   ```
+
+5. **管理命令**
+   - 停止服务：
+     ```bash
+     launchctl bootout gui/$UID ~/Library/LaunchAgents/com.ngrok.tunnel.plist
+     ```
+   - 重新加载：
+     ```bash
+     launchctl bootstrap gui/$UID ~/Library/LaunchAgents/com.ngrok.tunnel.plist
+     ```
+
+### 效果
+- 合盖后ngrok依然在后台运行，公网访问不受影响。
+- 用户登录时自动启动，无需手动干预。
