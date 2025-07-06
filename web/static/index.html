@@ -194,6 +194,77 @@
             margin-bottom: 20px;
         }
 
+        .period-controls {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .period-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .period-chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .period-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .period-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        .period-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .period-info {
+            flex: 1;
+        }
+
+        .period-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .period-meta {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .period-amounts {
+            text-align: right;
+        }
+
+        .period-income {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .period-expense {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .period-balance {
+            color: #007bff;
+            font-weight: bold;
+        }
+
         .loading {
             text-align: center;
             color: #666;
@@ -297,6 +368,126 @@
             </div>
         </div>
 
+        <!-- 时间段统计 -->
+        <div class="card">
+            <h2>📈 时间段统计</h2>
+            <div class="period-controls">
+                <div class="form-group">
+                    <label for="periodType">统计类型</label>
+                    <select id="periodType" onchange="loadPeriodStats()">
+                        <option value="1">按月统计</option>
+                        <option value="2">按年统计</option>
+                        <option value="3">按周统计</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="periodYear">年份</label>
+                    <select id="periodYear" onchange="loadPeriodStats()">
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                    </select>
+                </div>
+                <div class="form-group" id="periodMonthGroup" style="display: none;">
+                    <label for="periodMonth">月份</label>
+                    <select id="periodMonth" onchange="loadPeriodStats()">
+                        <option value="0">全部月份</option>
+                        <option value="1">1月</option>
+                        <option value="2">2月</option>
+                        <option value="3">3月</option>
+                        <option value="4">4月</option>
+                        <option value="5">5月</option>
+                        <option value="6">6月</option>
+                        <option value="7">7月</option>
+                        <option value="8">8月</option>
+                        <option value="9">9月</option>
+                        <option value="10">10月</option>
+                        <option value="11">11月</option>
+                        <option value="12">12月</option>
+                    </select>
+                </div>
+                <div class="form-group" id="periodWeekGroup" style="display: none;">
+                    <label for="periodWeek">周数</label>
+                    <select id="periodWeek" onchange="loadPeriodStats()">
+                        <option value="0">全部周</option>
+                        <option value="1">第1周</option>
+                        <option value="2">第2周</option>
+                        <option value="3">第3周</option>
+                        <option value="4">第4周</option>
+                        <option value="5">第5周</option>
+                        <option value="6">第6周</option>
+                        <option value="7">第7周</option>
+                        <option value="8">第8周</option>
+                        <option value="9">第9周</option>
+                        <option value="10">第10周</option>
+                        <option value="11">第11周</option>
+                        <option value="12">第12周</option>
+                        <option value="13">第13周</option>
+                        <option value="14">第14周</option>
+                        <option value="15">第15周</option>
+                        <option value="16">第16周</option>
+                        <option value="17">第17周</option>
+                        <option value="18">第18周</option>
+                        <option value="19">第19周</option>
+                        <option value="20">第20周</option>
+                        <option value="21">第21周</option>
+                        <option value="22">第22周</option>
+                        <option value="23">第23周</option>
+                        <option value="24">第24周</option>
+                        <option value="25">第25周</option>
+                        <option value="26">第26周</option>
+                        <option value="27">第27周</option>
+                        <option value="28">第28周</option>
+                        <option value="29">第29周</option>
+                        <option value="30">第30周</option>
+                        <option value="31">第31周</option>
+                        <option value="32">第32周</option>
+                        <option value="33">第33周</option>
+                        <option value="34">第34周</option>
+                        <option value="35">第35周</option>
+                        <option value="36">第36周</option>
+                        <option value="37">第37周</option>
+                        <option value="38">第38周</option>
+                        <option value="39">第39周</option>
+                        <option value="40">第40周</option>
+                        <option value="41">第41周</option>
+                        <option value="42">第42周</option>
+                        <option value="43">第43周</option>
+                        <option value="44">第44周</option>
+                        <option value="45">第45周</option>
+                        <option value="46">第46周</option>
+                        <option value="47">第47周</option>
+                        <option value="48">第48周</option>
+                        <option value="49">第49周</option>
+                        <option value="50">第50周</option>
+                        <option value="51">第51周</option>
+                        <option value="52">第52周</option>
+                        <option value="53">第53周</option>
+                    </select>
+                </div>
+            </div>
+            <div class="period-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="periodTotalIncome">¥0</div>
+                    <div class="stat-label">期间总收入</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="periodTotalExpense">¥0</div>
+                    <div class="stat-label">期间总支出</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="periodTotalBalance">¥0</div>
+                    <div class="stat-label">期间余额</div>
+                </div>
+            </div>
+            <div class="period-chart-container">
+                <canvas id="periodChart"></canvas>
+            </div>
+            <div id="periodList" class="period-list">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+
         <!-- 交易记录列表 -->
         <div class="card">
             <h2>📋 交易记录</h2>
@@ -345,6 +536,8 @@
 
         let chart = null;
         let currentTransactions = [];
+        let periodChart = null;
+        let currentPeriodStats = [];
         
         // 动态API地址配置 - 使用当前访问的主机名（通过web服务器代理到后端）
         const API_BASE_URL = window.location.protocol + '//' + window.location.host;
@@ -357,12 +550,22 @@
             // 初始化分类选项
             initializeCategories();
             
+            // 初始化年份选项
+            initializeYearOptions();
+            
             // 加载数据
             loadStats();
             loadTransactions();
+            loadPeriodStats();
             
             // 绑定表单提交事件
             document.getElementById('transactionForm').addEventListener('submit', handleSubmit);
+            
+            // 绑定时间段统计类型变化事件
+            document.getElementById('periodType').addEventListener('change', function() {
+                updatePeriodControls();
+                loadPeriodStats();
+            });
         });
 
         function initializeCategories() {
@@ -377,25 +580,57 @@
             });
         }
 
-                 async function handleSubmit(e) {
-             e.preventDefault();
-             
-             const formData = {
-                 type: parseInt(document.getElementById('type').value),
-                 category: parseInt(document.getElementById('category').value),
-                 amount: parseFloat(document.getElementById('amount').value),
-                 date: document.getElementById('date').value,
-                 desc: document.getElementById('desc').value
-             };
+        function initializeYearOptions() {
+            const currentYear = new Date().getFullYear();
+            const yearSelect = document.getElementById('periodYear');
+            yearSelect.innerHTML = '';
+            
+            // 添加当前年份和未来几年的选项（包括2025年用于测试）
+            for (let year = currentYear + 1; year >= currentYear - 2; year--) {
+                const option = new Option(year.toString(), year.toString());
+                yearSelect.appendChild(option);
+            }
+        }
 
-             try {
-                 const response = await fetch(`${API_BASE_URL}/api/transactions`, {
-                     method: 'POST',
-                     headers: {
-                         'Content-Type': 'application/json',
-                     },
-                     body: JSON.stringify(formData)
-                 });
+        function updatePeriodControls() {
+            const periodType = parseInt(document.getElementById('periodType').value);
+            const monthGroup = document.getElementById('periodMonthGroup');
+            const weekGroup = document.getElementById('periodWeekGroup');
+            
+            // 隐藏所有控制组
+            monthGroup.style.display = 'none';
+            weekGroup.style.display = 'none';
+            
+            // 根据统计类型显示相应的控制组
+            switch (periodType) {
+                case 1: // 按月统计
+                    monthGroup.style.display = 'block';
+                    break;
+                case 3: // 按周统计
+                    weekGroup.style.display = 'block';
+                    break;
+            }
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            
+            const formData = {
+                type: parseInt(document.getElementById('type').value),
+                category: parseInt(document.getElementById('category').value),
+                amount: parseFloat(document.getElementById('amount').value),
+                date: document.getElementById('date').value,
+                desc: document.getElementById('desc').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/transactions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
 
                 if (response.ok) {
                     showMessage('✅ 记录保存成功！', 'success');
@@ -411,27 +646,27 @@
             }
         }
 
-                         async function loadStats() {
+        async function loadStats() {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/stats`);
                 const stats = await response.json();
                
-               document.getElementById('totalIncome').textContent = `¥${(stats.totalIncome || 0).toFixed(2)}`;
-               document.getElementById('totalExpense').textContent = `¥${(stats.totalExpense || 0).toFixed(2)}`;
-               document.getElementById('balance').textContent = `¥${(stats.balance || 0).toFixed(2)}`;
-               
-               updateChart(stats);
-           } catch (error) {
-               console.error('加载统计数据失败:', error);
-               showMessage('❌ 加载统计数据失败', 'error');
-           }
-       }
+                document.getElementById('totalIncome').textContent = `¥${(stats.totalIncome || 0).toFixed(2)}`;
+                document.getElementById('totalExpense').textContent = `¥${(stats.totalExpense || 0).toFixed(2)}`;
+                document.getElementById('balance').textContent = `¥${(stats.balance || 0).toFixed(2)}`;
+                
+                updateChart(stats);
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+                showMessage('❌ 加载统计数据失败', 'error');
+            }
+        }
 
-                 async function loadTransactions() {
-             try {
-                 // 设置较大的页面大小以获取所有记录
-                 const response = await fetch(`${API_BASE_URL}/api/transactions?page=1&page_size=1000`);
-                 const data = await response.json();
+        async function loadTransactions() {
+            try {
+                // 设置较大的页面大小以获取所有记录
+                const response = await fetch(`${API_BASE_URL}/api/transactions?page=1&page_size=1000`);
+                const data = await response.json();
                 currentTransactions = data.transactions || [];
                 displayTransactions(currentTransactions);
             } catch (error) {
@@ -468,10 +703,10 @@
         async function deleteTransaction(id) {
             if (!confirm('确定要删除这条记录吗？')) return;
             
-                         try {
-                 const response = await fetch(`${API_BASE_URL}/api/transactions/${id}`, {
-                     method: 'DELETE'
-                 });
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/transactions/${id}`, {
+                    method: 'DELETE'
+                });
                 
                 if (response.ok) {
                     showMessage('✅ 删除成功！', 'success');
@@ -561,6 +796,128 @@
             setTimeout(() => {
                 messageDiv.innerHTML = '';
             }, 3000);
+        }
+
+        async function loadPeriodStats() {
+            const periodType = parseInt(document.getElementById('periodType').value);
+            const year = parseInt(document.getElementById('periodYear').value);
+            const month = parseInt(document.getElementById('periodMonth').value);
+            const week = parseInt(document.getElementById('periodWeek').value);
+            
+            // 构建查询参数
+            const params = new URLSearchParams();
+            params.append('period_type', periodType);
+            params.append('year', year);
+            if (month > 0) params.append('month', month);
+            if (week > 0) params.append('week', week);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/period-stats?${params.toString()}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    currentPeriodStats = data.periods || [];
+                    
+                    // 更新统计卡片
+                    document.getElementById('periodTotalIncome').textContent = `¥${(data.totalIncome || 0).toFixed(2)}`;
+                    document.getElementById('periodTotalExpense').textContent = `¥${(data.totalExpense || 0).toFixed(2)}`;
+                    document.getElementById('periodTotalBalance').textContent = `¥${(data.totalBalance || 0).toFixed(2)}`;
+                    
+                    // 更新图表和列表
+                    updatePeriodChart(data);
+                    displayPeriodList(currentPeriodStats);
+                } else {
+                    throw new Error('加载时间段统计数据失败');
+                }
+            } catch (error) {
+                console.error('加载时间段统计数据失败:', error);
+                document.getElementById('periodList').innerHTML = '<div class="error">加载时间段统计数据失败</div>';
+            }
+        }
+
+        function updatePeriodChart(data) {
+            const ctx = document.getElementById('periodChart').getContext('2d');
+            
+            if (periodChart) {
+                periodChart.destroy();
+            }
+            
+            const periods = data.periods || [];
+            const labels = periods.map(item => item.periodName);
+            const incomeData = periods.map(item => item.income);
+            const expenseData = periods.map(item => item.expense);
+            
+            periodChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '收入',
+                            data: incomeData,
+                            backgroundColor: '#28a745',
+                            borderColor: '#28a745',
+                            borderWidth: 1
+                        },
+                        {
+                            label: '支出',
+                            data: expenseData,
+                            backgroundColor: '#dc3545',
+                            borderColor: '#dc3545',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '¥' + value.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: '时间段收支统计'
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayPeriodList(periods) {
+            const container = document.getElementById('periodList');
+            
+            if (!periods || periods.length === 0) {
+                container.innerHTML = '<div class="loading">暂无时间段统计数据</div>';
+                return;
+            }
+
+            const html = periods.map(period => `
+                <div class="period-item">
+                    <div class="period-info">
+                        <div class="period-name">${period.periodName}</div>
+                        <div class="period-meta">
+                            交易笔数: ${period.transactionCount}
+                        </div>
+                    </div>
+                    <div class="period-amounts">
+                        <div class="period-income">+¥${period.income.toFixed(2)}</div>
+                        <div class="period-expense">-¥${period.expense.toFixed(2)}</div>
+                        <div class="period-balance">¥${period.balance.toFixed(2)}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
         }
     </script>
 </body>
